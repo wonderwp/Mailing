@@ -1,0 +1,32 @@
+{
+    "name": "wonderwp/mailing",
+    "type": "library",
+    "description": "WonderWp Mailing Component",
+    "keywords": ["request"],
+    "homepage": "https://wonderwp.com",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jeremy Desvaux",
+            "homepage": "http://jdmweb.com"
+        },
+        {
+            "name": "WonderWp Community",
+            "homepage": "https://wonderwp.com/contributors"
+        }
+    ],
+    "require": {
+        "php": "~5.6|~7"
+    },
+    "require-dev": {
+        "wonderwp/dependency-injection": "dev-develop@dev",
+        "wonderwp/http-foundation": "dev-develop@dev"
+    },
+    "autoload": {
+        "psr-4": {"WonderWp\\Component\\Mailing\\": ""},
+        "exclude-from-classmap": [
+            "/Tests/"
+        ]
+    },
+    "minimum-stability": "dev"
+}
