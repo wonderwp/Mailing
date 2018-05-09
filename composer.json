@@ -23,7 +23,7 @@
         "wonderwp/http-foundation": "dev-develop@dev"
     },
     "autoload": {
-        "psr-4": {"WonderWp\\Component\\Mailing\\": ""},
+        "psr-4": {"WonderWp\\Component\\Mailing\\": "src"},
         "exclude-from-classmap": [
             "/Tests/"
         ]
