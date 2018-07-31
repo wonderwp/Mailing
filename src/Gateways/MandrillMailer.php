@@ -2,9 +2,9 @@
 
 namespace WonderWp\Component\Mailing\Gateways;
 
-use WonderWp\Framework\API\Result;
-use function WonderWp\Framework\array_merge_recursive_distinct;
-use WonderWp\Framework\DependencyInjection\Container;
+use WonderWp\Component\HttpFoundation\Result;
+use function WonderWp\Functions\array_merge_recursive_distinct;
+use WonderWp\Component\DependencyInjection\Container;
 use WonderWp\Component\Mailing\AbstractMailer;
 
 class MandrillMailer extends AbstractMailer
@@ -26,8 +26,6 @@ class MandrillMailer extends AbstractMailer
      */
     public function send(array $opts = [])
     {
-        $container = Container::getInstance();
-
         $jsonPayLoad = $this->computeJsonPayload($opts);
 
         $endPointUrl = '/messages/send';

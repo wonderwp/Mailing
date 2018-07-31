@@ -72,7 +72,7 @@ class SwiftMailerMailer extends AbstractMailer
     public function send(array $opts = [])
     {
         $container = Container::getInstance();
-        $transport = $container->offsetExists('wwp.emails.mailer.swift_transport') ? $container->offsetGet('wwp.emails.mailer.swift_transport') : \Swift_MailTransport::newInstance();
+        $transport = $container->offsetExists('wwp.mailing.mailer.swift_transport') ? $container->offsetGet('wwp.mailing.mailer.swift_transport') : \Swift_MailTransport::newInstance();
         $mailer    = \Swift_Mailer::newInstance($transport);
         $nbSent    = $mailer->send($this->message);
         $code      = $nbSent > 0 ? 200 : 500;
