@@ -62,8 +62,20 @@ class WpMailer extends AbstractMailer
     public function send(array $opts = [])
     {
         $to      = !(empty($this->to)) ? join(', ', $this->to) : '';
+        if(empty($to)){
+            return apply_filters('wwp.mailer.send.result',new Result(500,['msg'=>'WpMailer : empty attribute value : to']));
+        }
+
         $subject = $this->subject;
+        if(empty($subject)){
+            return apply_filters('wwp.mailer.send.result',new Result(500,['msg'=>'WpMailer : empty attribute value : subject']));
+        }
+
         $message = $this->body;
+        if(empty($message)){
+            return apply_filters('wwp.mailer.send.result',new Result(500,['msg'=>'WpMailer : empty attribute value : body']));
+        }
+
         $headers = $this->prepareHeaders();
         $sent    = wp_mail($to, $subject, $message, $headers);
         $code    = $sent ? 200 : 500;
