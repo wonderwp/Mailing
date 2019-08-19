@@ -12,7 +12,8 @@ class MandrillMailer extends AbstractMailer
     /** @var \Mandrill */
     protected $mandrill;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         if (empty($this->mandrill)) {
             $this->mandrill = new \Mandrill(Container::getInstance()->offsetGet('mandrill_api_key'));
@@ -57,11 +58,12 @@ class MandrillMailer extends AbstractMailer
 
         $result = new Result($code, ['res' => $res, 'successes' => $successes, 'failures' => $failures]);
 
-        return apply_filters('wwp.mailer.send.result',$result);
+        return apply_filters('wwp.mailer.send.result', $result);
     }
 
     /**
      * Opts to json payload
+     *
      * @param $opts
      *
      * @return array
@@ -204,11 +206,11 @@ class MandrillMailer extends AbstractMailer
         return $payload;
     }
 
-    private function correctEncodingRecursive(&$array){
-
-        if(!empty($array)){
-            foreach($array as $key=>$val){
-                if(is_array($val)){
+    private function correctEncodingRecursive(&$array)
+    {
+        if (!empty($array)) {
+            foreach ($array as $key => $val) {
+                if (is_array($val)) {
                     $array[$key] = $this->correctEncodingRecursive($val);
                 } else {
                     $array[$key] = $this->correctEncoding($val);
@@ -219,10 +221,12 @@ class MandrillMailer extends AbstractMailer
         return $array;
     }
 
-    private function correctEncoding($str){
-        if (!preg_match('!!u', $str)){
+    private function correctEncoding($str)
+    {
+        if (is_string($str) && !preg_match('!!u', $str)) {
             $str = utf8_encode($str);
         }
+
         return $str;
     }
 }
