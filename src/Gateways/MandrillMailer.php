@@ -2,6 +2,7 @@
 
 namespace WonderWp\Component\Mailing\Gateways;
 
+use Pimple\Exception\UnknownIdentifierException;
 use WonderWp\Component\HttpFoundation\Result;
 use function WonderWp\Functions\array_merge_recursive_distinct;
 use WonderWp\Component\DependencyInjection\Container;
@@ -12,11 +13,11 @@ class MandrillMailer extends AbstractMailer
     /** @var \Mandrill */
     protected $mandrill;
 
-    public function __construct()
+    public function __construct($apiKey)
     {
         parent::__construct();
         if (empty($this->mandrill)) {
-            $this->mandrill = new \Mandrill(Container::getInstance()->offsetGet('mandrill_api_key'));
+            $this->mandrill = new \Mandrill($apiKey);
         }
     }
 
@@ -85,8 +86,6 @@ class MandrillMailer extends AbstractMailer
                     'html'                => $body,
                     'text'                => $this->getAltBody(),
                     'subject'             => $this->getSubject(),
-                    'from_email'          => $this->from[0],
-                    'from_name'           => $this->from[1],
                     'to'                  => [], //set further down
                     'important'           => false,
                     'track_opens'         => true,
@@ -135,11 +134,12 @@ class MandrillMailer extends AbstractMailer
                         array (
                             0 => 'example.com',
                         ),
-                    'google_analytics_campaign' => 'message.from_email@example.com',*/
+                    'google_analytics_campaign' => 'message.from_email@example.com',
                     'metadata'            =>
                         [
                             'website' => get_bloginfo('url'),
                         ],
+                    */
                     'recipient_metadata'  =>
                         [
                             /*0 =>
@@ -175,6 +175,11 @@ class MandrillMailer extends AbstractMailer
             //'send_at' => date('Y-m-d H:i:s'),
         ];
 
+        if (!empty($this->from)) {
+            $defaultOpts['from_email'] = $this->from[0];
+            $defaultOpts['from_name']  = $this->from[1];
+        }
+
         //template ?
         if (!empty($template)) {
             $defaultOpts['template_name']    = $template;
@@ -200,13 +205,12 @@ class MandrillMailer extends AbstractMailer
         }
 
         $payload = array_merge_recursive_distinct($defaultOpts, $opts);
-
         $this->correctEncodingRecursive($payload);
 
         return $payload;
     }
 
-    private function correctEncodingRecursive(&$array)
+    protected function correctEncodingRecursive(&$array)
     {
         if (!empty($array)) {
             foreach ($array as $key => $val) {
@@ -221,7 +225,7 @@ class MandrillMailer extends AbstractMailer
         return $array;
     }
 
-    private function correctEncoding($str)
+    protected function correctEncoding($str)
     {
         if (is_string($str) && !preg_match('!!u', $str)) {
             $str = utf8_encode($str);
