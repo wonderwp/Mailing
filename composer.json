@@ -25,7 +25,7 @@
     "autoload": {
         "psr-4": {
           "WonderWp\\Component\\Mailing\\": "src",
-          "WonderWp\\Component\\Mailing\\Tests": "tests"
+          "WonderWp\\Component\\Mailing\\Tests\\": "tests"
         },
         "exclude-from-classmap": [
             "/Tests/"
