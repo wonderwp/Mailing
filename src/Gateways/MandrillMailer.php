@@ -176,16 +176,14 @@ class MandrillMailer extends AbstractMailer
         ];
 
         if (!empty($this->from)) {
-            $defaultOpts['from_email'] = $this->from[0];
-            $defaultOpts['from_name']  = $this->from[1];
+            $defaultOpts['message']['from_email'] = $this->from[0];
+            $defaultOpts['message']['from_name']  = $this->from[1];
         }
 
         //template ?
         if (!empty($template)) {
             $defaultOpts['template_name']    = $template;
-            $defaultOpts['template_content'] = [
-
-            ];
+            $defaultOpts['template_content'] = [];
         }
 
         //Add recipients
