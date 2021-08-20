@@ -1,35 +1,35 @@
 {
-    "name": "wonderwp/mailing",
-    "type": "library",
-    "description": "WonderWp Mailing Component",
-    "keywords": ["request"],
-    "homepage": "https://wonderwp.com",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Jeremy Desvaux",
-            "homepage": "http://jdmweb.com"
-        },
-        {
-            "name": "WonderWp Community",
-            "homepage": "https://wonderwp.com/contributors"
-        }
-    ],
-    "require": {
-        "php": "~5.6|~7"
+  "name": "wonderwp/mailing",
+  "description": "WonderWp Mailing Component",
+  "type": "library",
+  "keywords": ["mailing", "mailer", "WonderWp", "WordPress"],
+  "homepage": "https://github.com/wonderwp/Mailing",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Jeremy Desvaux",
+      "homepage": "https://jdmweb.com"
     },
-    "require-dev": {
-        "wonderwp/dependency-injection": "^1.0",
-        "wonderwp/http-foundation": "^1.0"
+    {
+      "name": "WonderWp Community",
+      "homepage": "http://wonderwp.net/Contribution/Contributors.html"
+    }
+  ],
+  "require": {
+    "php": ">=7.1"
+  },
+  "require-dev": {
+    "wonderwp/dependency-injection": "^1.0",
+    "wonderwp/http-foundation": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "WonderWp\\Component\\Mailing\\": "src",
+      "WonderWp\\Component\\Mailing\\Tests\\": "tests"
     },
-    "autoload": {
-        "psr-4": {
-          "WonderWp\\Component\\Mailing\\": "src",
-          "WonderWp\\Component\\Mailing\\Tests\\": "tests"
-        },
-        "exclude-from-classmap": [
-            "/Tests/"
-        ]
-    },
-    "minimum-stability": "dev"
+    "exclude-from-classmap": [
+      "/Tests/"
+    ]
+  },
+  "minimum-stability": "dev"
 }
