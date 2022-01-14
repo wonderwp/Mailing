@@ -270,10 +270,10 @@ class WpMailer extends AbstractMailer
         //Reset any previously set error
         $this->wpMailFailedError = null;
 
-        add_action('wp_mail_failed', [$this, 'SetWpMailFailedError']);
+        add_action('wp_mail_failed', [$this, 'setWpMailFailedError']);
     }
 
-    public function SetWpMailFailedError($error)
+    public function setWpMailFailedError($error)
     {
         $this->wpMailFailedError = $error;
     }
@@ -283,6 +283,6 @@ class WpMailer extends AbstractMailer
         //Reset any previously set error
         $this->wpMailFailedError = null;
 
-        remove_action('wp_mail_failed', [$this, 'SetWpMailFailedError']);
+        remove_action('wp_mail_failed', [$this, 'setWpMailFailedError']);
     }
 }
