@@ -3,9 +3,10 @@
 namespace WonderWp\Component\Mailing\Exception;
 
 use Exception;
+use JsonSerializable;
 use Throwable;
 
-abstract class AbstractEmailException extends Exception
+abstract class AbstractEmailException extends Exception implements JsonSerializable
 {
     /** @var array */
     protected $details;
