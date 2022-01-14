@@ -23,12 +23,14 @@ class MandrillMailer extends AbstractMailer
     /** @inheritDoc */
     public function send(array $opts = [])
     {
-        $error = $this->preSendValidation();
+        //Check for any obvious errors
+        $error = $this->preSendValidation($opts);
         if (!empty($error)) {
             $result = new EmailResult(400, EmailResult::MailNotSentMsgKey, null, [], $error, $this);
             return apply_filters(static::SendResultFilterName, $result);
         }
 
+        //Then try to send
         try {
 
             $jsonPayLoad = $this->computeJsonPayload($opts);
@@ -57,7 +59,6 @@ class MandrillMailer extends AbstractMailer
 
             $code   = 500;
             $msgKey = EmailResult::MailNotSentMsgKey;
-
             if (!empty($successes)) {
                 $code   = EmailResult::SuccessCode;
                 $msgKey = EmailResult::MailSentMsgKey;
@@ -219,6 +220,10 @@ class MandrillMailer extends AbstractMailer
         return $payload;
     }
 
+    /**
+     * @param $array
+     * @return array
+     */
     protected function correctEncodingRecursive(&$array)
     {
         if (!empty($array)) {
@@ -234,6 +239,10 @@ class MandrillMailer extends AbstractMailer
         return $array;
     }
 
+    /**
+     * @param $str
+     * @return mixed|string
+     */
     protected function correctEncoding($str)
     {
         if (is_string($str) && !preg_match('!!u', $str)) {

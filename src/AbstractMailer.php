@@ -257,9 +257,11 @@ abstract class AbstractMailer implements MailerInterface
         return $this->bcc;
     }
 
-    protected function preSendValidation()
+    /**
+     * @return InvalidMailerConfigurationException|null
+     */
+    protected function preSendValidation(array $opts = [], array $errors = [])
     {
-        $errors = [];
         $error  = null;
 
         if (empty($this->to)) {

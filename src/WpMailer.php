@@ -67,15 +67,18 @@ class WpMailer extends AbstractMailer
     /** @inheritdoc */
     public function send(array $opts = [])
     {
-        $this->wpMailFailedError = null;
-        $error                   = $this->preSendValidation();
+        //Check for any obvious errors
+        $error = $this->preSendValidation($opts);
         if (!empty($error)) {
             $result = new EmailResult(400, EmailResult::MailNotSentMsgKey, null, [], $error, $this);
             return apply_filters(static::SendResultFilterName, $result);
         }
 
+        //Then try to send
         try {
+            //Wp provides a filter we can listen to, to provide better email delivery error explanations
             $this->setupErrorListener();
+
             $headers  = $this->prepareHeaders();
             $to       = !(empty($this->to)) ? join(', ', $this->to) : '';
             $sent     = wp_mail($to, $this->subject, $this->body, $headers);
@@ -83,6 +86,7 @@ class WpMailer extends AbstractMailer
             $msgKey   = $sent ? EmailResult::MailSentMsgKey : EmailResult::MailNotSentMsgKey;
             $response = $sent;
             $error    = null;
+
             if (!$sent && !empty($this->wpMailFailedError)) {
                 $error = new MailerDeliveryException(
                     $this->wpMailFailedError->get_error_message(),
@@ -91,6 +95,8 @@ class WpMailer extends AbstractMailer
                     [$this->wpMailFailedError]
                 );
             }
+
+            $this->removeEventListener();
 
             $result = new EmailResult($code, $msgKey, $response, [], $error, $this);
         } catch (Throwable $e) {
@@ -261,8 +267,22 @@ class WpMailer extends AbstractMailer
 
     protected function setupErrorListener()
     {
-        add_action('wp_mail_failed', function ($error) {
-            $this->wpMailFailedError = $error;
-        });
+        //Reset any previously set error
+        $this->wpMailFailedError = null;
+
+        add_action('wp_mail_failed', [$this, 'setError']);
+    }
+
+    public function setError($error)
+    {
+        $this->wpMailFailedError = $error;
+    }
+
+    protected function removeEventListener()
+    {
+        //Reset any previously set error
+        $this->wpMailFailedError = null;
+
+        remove_action('wp_mail_failed', [$this, 'setError']);
     }
 }

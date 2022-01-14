@@ -7,15 +7,15 @@ use WonderWp\Component\Mailing\Result\EmailResult;
 
 class FakeMailer extends AbstractMailer
 {
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function send(array $opts = [])
     {
-        $error = $this->preSendValidation();
+        //Check for any obvious errors
+        $error = $this->preSendValidation($opts);
         if (!empty($error)) {
             $result = new EmailResult(400, EmailResult::MailNotSentMsgKey, null, [], $error, $this);
         } else {
+            //Fake send by returning a successful EmailResult
             $result = new EmailResult(EmailResult::SuccessCode);
         }
 

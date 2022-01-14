@@ -11,6 +11,12 @@ abstract class AbstractEmailException extends Exception implements JsonSerializa
     /** @var array */
     protected $details;
 
+    /**
+     * @param string $message
+     * @param int $code
+     * @param Throwable|null $previous
+     * @param array $details
+     */
     public function __construct($message = "", $code = 0, Throwable $previous = null, array $details = [])
     {
         parent::__construct($message, $code, $previous);
@@ -49,6 +55,9 @@ abstract class AbstractEmailException extends Exception implements JsonSerializa
         return json_encode($this);
     }
 
+    /**
+     * @return array
+     */
     public function toArray()
     {
         return json_decode(json_encode($this), true);

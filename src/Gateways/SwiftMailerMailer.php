@@ -72,12 +72,14 @@ class SwiftMailerMailer extends AbstractMailer
     /** @inheritdoc */
     public function send(array $opts = [])
     {
-        $error = $this->preSendValidation();
+        //Check for any obvious errors
+        $error = $this->preSendValidation($opts);
         if (!empty($error)) {
             $result = new EmailResult(400, EmailResult::MailNotSentMsgKey, null, [], $error, $this);
             return apply_filters(static::SendResultFilterName, $result);
         }
 
+        //Then try to send
         try {
             $container = Container::getInstance();
             $transport = $container->offsetExists('wwp.mailing.mailer.swift_transport') ? $container->offsetGet('wwp.mailing.mailer.swift_transport') : \Swift_MailTransport::newInstance();

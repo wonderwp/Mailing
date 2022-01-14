@@ -101,6 +101,9 @@ class EmailResult extends Result
         return $this;
     }
 
+    /**
+     * @return bool
+     */
     public function isSuccess()
     {
         return $this->code === static::SuccessCode;
