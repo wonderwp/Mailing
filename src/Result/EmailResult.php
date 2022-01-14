@@ -128,9 +128,9 @@ class EmailResult extends Result
     }
 
     /**
-     * @return MailerInterface
+     * @return MailerInterface|null
      */
-    public function getMailerInstance(): MailerInterface
+    public function getMailerInstance(): ?MailerInterface
     {
         return $this->mailerInstance;
     }
