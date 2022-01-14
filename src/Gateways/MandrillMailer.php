@@ -2,10 +2,9 @@
 
 namespace WonderWp\Component\Mailing\Gateways;
 
-use Pimple\Exception\UnknownIdentifierException;
-use WonderWp\Component\HttpFoundation\Result;
+use Throwable;
+use WonderWp\Component\Mailing\Result\EmailResult;
 use function WonderWp\Functions\array_merge_recursive_distinct;
-use WonderWp\Component\DependencyInjection\Container;
 use WonderWp\Component\Mailing\AbstractMailer;
 
 class MandrillMailer extends AbstractMailer
@@ -21,45 +20,57 @@ class MandrillMailer extends AbstractMailer
         }
     }
 
-    /**
-     * @param array $opts
-     *
-     * @return Result
-     */
+    /** @inheritDoc */
     public function send(array $opts = [])
     {
-        $jsonPayLoad = $this->computeJsonPayload($opts);
-
-        $endPointUrl = '/messages/send';
-
-        $body = $this->getBody();
-        if (strpos($body, 'template::') !== false) {
-            $endPointUrl = '/messages/send-template';
+        $error = $this->preSendValidation();
+        if (!empty($error)) {
+            $result = new EmailResult(400, EmailResult::MailNotSentMsgKey, null, [], $error, $this);
+            return apply_filters(static::SendResultFilterName, $result);
         }
 
-        $res = $this->mandrill->call($endPointUrl, $jsonPayLoad);
+        try {
 
-        $successes = [];
-        $failures  = [];
+            $jsonPayLoad = $this->computeJsonPayload($opts);
 
-        if (!empty($res)) {
-            foreach ($res as $sentTo) {
-                if (!empty($sentTo['status']) && in_array($sentTo['status'], ["sent", "queued", "scheduled"])) {
-                    $successes[] = $sentTo;
-                } else {
-                    $failures[] = $sentTo;
+            $endPointUrl = '/messages/send';
+
+            $body = $this->getBody();
+            if (strpos($body, 'template::') !== false) {
+                $endPointUrl = '/messages/send-template';
+            }
+
+            $res = $this->mandrill->call($endPointUrl, $jsonPayLoad);
+
+            $successes = [];
+            $failures  = [];
+
+            if (!empty($res)) {
+                foreach ($res as $sentTo) {
+                    if (!empty($sentTo['status']) && in_array($sentTo['status'], ["sent", "queued", "scheduled"])) {
+                        $successes[] = $sentTo;
+                    } else {
+                        $failures[] = $sentTo;
+                    }
                 }
             }
+
+            $code   = 500;
+            $msgKey = EmailResult::MailNotSentMsgKey;
+
+            if (!empty($successes)) {
+                $code   = EmailResult::SuccessCode;
+                $msgKey = EmailResult::MailSentMsgKey;
+            }
+            $response = ['res' => $res, 'successes' => $successes, 'failures' => $failures];
+
+            $result = new EmailResult($code, $msgKey, $response, [], null, $this);
+
+        } catch (Throwable $e) {
+            $result = new EmailResult(500, EmailResult::MailNotSentMsgKey, null, [], $e, $this);
         }
 
-        $code = 500;
-        if (!empty($successes)) {
-            $code = 200;
-        }
-
-        $result = new Result($code, ['res' => $res, 'successes' => $successes, 'failures' => $failures]);
-
-        return apply_filters('wwp.mailer.send.result', $result);
+        return apply_filters(static::SendResultFilterName, $result);
     }
 
     /**

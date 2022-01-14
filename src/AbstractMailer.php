@@ -2,8 +2,11 @@
 
 namespace WonderWp\Component\Mailing;
 
+use WonderWp\Component\Mailing\Exception\InvalidMailerConfigurationException;
+
 abstract class AbstractMailer implements MailerInterface
 {
+    const SendResultFilterName = 'wwp.mailer.send.result';
     /** @var string */
     protected $subject;
     /** @var string */
@@ -253,4 +256,33 @@ abstract class AbstractMailer implements MailerInterface
     {
         return $this->bcc;
     }
+
+    protected function preSendValidation()
+    {
+        $errors = [];
+        $error  = null;
+
+        if (empty($this->to)) {
+            $errors[] = 'empty attribute value : to';
+        }
+
+        $subject = $this->subject;
+        if (empty($subject)) {
+            $errors[] = 'empty attribute value : subject';
+        }
+
+        $message = $this->body;
+        if (empty($message)) {
+            $errors[] = 'empty attribute value : body';
+        }
+
+        if (!empty($errors)) {
+            $error = new InvalidMailerConfigurationException("The mailer contains some configuration errors", 400, null, $errors);
+        }
+
+        return $error;
+    }
+
+    /** @inheritDoc */
+    abstract public function send(array $opts = []);
 }

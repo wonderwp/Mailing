@@ -2,10 +2,16 @@
 
 namespace WonderWp\Component\Mailing;
 
-use WonderWp\Component\HttpFoundation\Result;
+use Throwable;
+use WonderWp\Component\Mailing\Exception\MailerDeliveryException;
+use WonderWp\Component\Mailing\Result\EmailResult;
+use WP_Error;
 
 class WpMailer extends AbstractMailer
 {
+    /** @var WP_Error */
+    private $wpMailFailedError = null;
+
     /** @inheritdoc */
     public function setFrom($email, $name = '')
     {
@@ -61,27 +67,37 @@ class WpMailer extends AbstractMailer
     /** @inheritdoc */
     public function send(array $opts = [])
     {
-        $to      = !(empty($this->to)) ? join(', ', $this->to) : '';
-        if(empty($to)){
-            return apply_filters('wwp.mailer.send.result',new Result(500,['msg'=>'WpMailer : empty attribute value : to']));
+        $this->wpMailFailedError = null;
+        $error                   = $this->preSendValidation();
+        if (!empty($error)) {
+            $result = new EmailResult(400, EmailResult::MailNotSentMsgKey, null, [], $error, $this);
+            return apply_filters(static::SendResultFilterName, $result);
         }
 
-        $subject = $this->subject;
-        if(empty($subject)){
-            return apply_filters('wwp.mailer.send.result',new Result(500,['msg'=>'WpMailer : empty attribute value : subject']));
+        try {
+            $this->setupErrorListener();
+            $headers  = $this->prepareHeaders();
+            $to       = !(empty($this->to)) ? join(', ', $this->to) : '';
+            $sent     = wp_mail($to, $this->subject, $this->body, $headers);
+            $code     = $sent ? EmailResult::SuccessCode : 500;
+            $msgKey   = $sent ? EmailResult::MailSentMsgKey : EmailResult::MailNotSentMsgKey;
+            $response = $sent;
+            $error    = null;
+            if (!$sent && !empty($this->wpMailFailedError)) {
+                $error = new MailerDeliveryException(
+                    $this->wpMailFailedError->get_error_message(),
+                    500,
+                    null,
+                    [$this->wpMailFailedError]
+                );
+            }
+
+            $result = new EmailResult($code, $msgKey, $response, [], $error, $this);
+        } catch (Throwable $e) {
+            $result = new EmailResult(500, EmailResult::MailNotSentMsgKey, null, [], $e, $this);
         }
 
-        $message = $this->body;
-        if(empty($message)){
-            return apply_filters('wwp.mailer.send.result',new Result(500,['msg'=>'WpMailer : empty attribute value : body']));
-        }
-
-        $headers = $this->prepareHeaders();
-        $sent    = wp_mail($to, $subject, $message, $headers);
-        $code    = $sent ? 200 : 500;
-
-        $result = new Result($code);
-        return apply_filters('wwp.mailer.send.result',$result);
+        return apply_filters(static::SendResultFilterName, $result);
     }
 
     /**
@@ -104,8 +120,8 @@ class WpMailer extends AbstractMailer
      * addMailHeader
      *
      * @param string $header The header to add.
-     * @param string $email  The email to add.
-     * @param string $name   The name to add.
+     * @param string $email The email to add.
+     * @param string $name The name to add.
      *
      * @return $this
      */
@@ -124,7 +140,7 @@ class WpMailer extends AbstractMailer
      * Name <address@domain.tld>
      *
      * @param string $email The email address.
-     * @param string $name  The display name.
+     * @param string $name The display name.
      *
      * @return string
      */
@@ -241,5 +257,12 @@ class WpMailer extends AbstractMailer
         );
 
         return trim(strtr($filtered, $rule));
+    }
+
+    protected function setupErrorListener()
+    {
+        add_action('wp_mail_failed', function ($error) {
+            $this->wpMailFailedError = $error;
+        });
     }
 }
