@@ -3,6 +3,7 @@
 namespace WonderWp\Component\Mailing;
 
 use WonderWp\Component\Mailing\Exception\InvalidMailerConfigurationException;
+use WonderWp\Component\Mailing\Result\EmailResult;
 
 abstract class AbstractMailer implements MailerInterface
 {
@@ -260,7 +261,7 @@ abstract class AbstractMailer implements MailerInterface
     /**
      * @return InvalidMailerConfigurationException|null
      */
-    protected function preSendValidation(array $opts = [], array $errors = [])
+    protected function checkForValidationError(array $opts = [], array $errors = [])
     {
         $error  = null;
 
@@ -283,6 +284,13 @@ abstract class AbstractMailer implements MailerInterface
         }
 
         return $error;
+    }
+
+    protected function returnValidationError(InvalidMailerConfigurationException $error)
+    {
+        $result = new EmailResult(400, EmailResult::MailNotSentMsgKey, null, [], $error, $this);
+
+        return apply_filters(static::SendResultFilterName, $result);
     }
 
     /** @inheritDoc */

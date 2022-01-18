@@ -10,14 +10,14 @@ class FakeMailer extends AbstractMailer
     /** @inheritDoc */
     public function send(array $opts = [])
     {
-        //Check for any obvious errors
-        $error = $this->preSendValidation($opts);
+        //Check for any validation errors
+        $error = $this->checkForValidationError($opts);
         if (!empty($error)) {
-            $result = new EmailResult(400, EmailResult::MailNotSentMsgKey, null, [], $error, $this);
-        } else {
-            //Fake send by returning a successful EmailResult
-            $result = new EmailResult(EmailResult::SuccessCode);
+            return $this->returnValidationError($error);
         }
+
+        //Fake send by returning a successful EmailResult
+        $result = new EmailResult(EmailResult::SuccessCode);
 
         return apply_filters(static::SendResultFilterName, $result);
     }
