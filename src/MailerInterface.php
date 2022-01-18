@@ -2,7 +2,7 @@
 
 namespace WonderWp\Component\Mailing;
 
-use WonderWp\Component\HttpFoundation\Result;
+use WonderWp\Component\Mailing\Result\EmailResult;
 
 interface MailerInterface
 {
@@ -164,7 +164,7 @@ interface MailerInterface
     /**
      * @param array $opts
      *
-     * @return Result
+     * @return EmailResult
      */
     public function send(array $opts = []);
 

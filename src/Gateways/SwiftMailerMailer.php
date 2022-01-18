@@ -2,9 +2,10 @@
 
 namespace WonderWp\Component\Mailing\Gateways;
 
-use WonderWp\Component\HttpFoundation\Result;
+use Throwable;
 use WonderWp\Component\DependencyInjection\Container;
 use WonderWp\Component\Mailing\AbstractMailer;
+use WonderWp\Component\Mailing\Result\EmailResult;
 
 class SwiftMailerMailer extends AbstractMailer
 {
@@ -71,13 +72,27 @@ class SwiftMailerMailer extends AbstractMailer
     /** @inheritdoc */
     public function send(array $opts = [])
     {
-        $container = Container::getInstance();
-        $transport = $container->offsetExists('wwp.mailing.mailer.swift_transport') ? $container->offsetGet('wwp.mailing.mailer.swift_transport') : \Swift_MailTransport::newInstance();
-        $mailer    = \Swift_Mailer::newInstance($transport);
-        $nbSent    = $mailer->send($this->message);
-        $code      = $nbSent > 0 ? 200 : 500;
-        $result    = new Result($code, ['res' => $nbSent, 'successes' => $nbSent, 'failures' => null]);
+        //Check for any validation errors
+        $error = $this->checkForValidationError($opts);
+        if (!empty($error)) {
+            return $this->returnValidationError($error);
+        }
 
-        return apply_filters('wwp.mailer.send.result',$result);
+        //Then try to send
+        try {
+            $container = Container::getInstance();
+            $transport = $container->offsetExists('wwp.mailing.mailer.swift_transport') ? $container->offsetGet('wwp.mailing.mailer.swift_transport') : \Swift_MailTransport::newInstance();
+            $mailer    = \Swift_Mailer::newInstance($transport);
+            $nbSent    = $mailer->send($this->message);
+            $isSuccess = $nbSent > 0;
+            $code      = $isSuccess ? EmailResult::SuccessCode : 500;
+            $msgKey    = $isSuccess ? EmailResult::MailSentMsgKey : EmailResult::MailNotSentMsgKey;
+            $response  = ['res' => $nbSent, 'successes' => $nbSent, 'failures' => null];
+            $result    = new EmailResult($code, $msgKey, $response, [], null, $this);
+        } catch (Throwable $e) {
+            $result = new EmailResult(500, EmailResult::MailNotSentMsgKey, null, [], $e, $this);
+        }
+
+        return apply_filters(static::SendResultFilterName, $result);
     }
 }
