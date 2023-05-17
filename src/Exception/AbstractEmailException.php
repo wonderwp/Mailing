@@ -32,7 +32,7 @@ abstract class AbstractEmailException extends Exception implements JsonSerializa
     }
 
     /** @inheritdoc */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $vars            = get_object_vars($this);
         $unnecessaryArgs = ['file', 'line', 'xdebug_message'];
