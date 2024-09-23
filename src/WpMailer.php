@@ -255,11 +255,8 @@ class WpMailer extends AbstractMailer
             '<'  => '[',
             '>'  => ']',
         ];
-        $filtered = filter_var(
-            $name,
-            FILTER_SANITIZE_STRING,
-            FILTER_FLAG_NO_ENCODE_QUOTES
-        );
+        
+        $filtered = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
 
         return trim(strtr($filtered, $rule));
     }
