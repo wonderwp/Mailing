@@ -19,8 +19,8 @@
     "php": ">=8.0"
   },
   "require-dev": {
-    "wonderwp/dependency-injection": "^1.0",
-    "wonderwp/http-foundation": "^1.0"
+    "wonderwp/dependency-injection": "dev-feature/php_8",
+    "wonderwp/http-foundation": "^dev-feature/increase_http_foundation_lib_version"
   },
   "autoload": {
     "psr-4": {
