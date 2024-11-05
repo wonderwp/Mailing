@@ -20,7 +20,7 @@
   },
   "require-dev": {
     "wonderwp/dependency-injection": "dev-feature/php_8",
-    "wonderwp/http-foundation": "^dev-feature/increase_http_foundation_lib_version"
+    "wonderwp/http-foundation": "dev-feature/increase_http_foundation_lib_version"
   },
   "autoload": {
     "psr-4": {
