@@ -23,7 +23,7 @@ class WpMailer extends AbstractMailer
     /** @inheritdoc */
     public function addTo($email, $name = "")
     {
-        $this->to[] = $this->formatHeader((string)$email, (string)$name);
+        $this->to[$email] = $this->formatHeader((string)$email, (string)$name);
 
         return $this;
     }
