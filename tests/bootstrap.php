@@ -20,13 +20,6 @@ if ($autoload === null) {
     exit(1);
 }
 
-$functionsFile = dirname(__DIR__) . '/vendor/wonderwp/functions/src/functions.php';
-if (is_file($functionsFile)) {
-    require_once $functionsFile;
-} else {
-    require_once __DIR__ . '/stub-functions.php';
-}
-
 require_once __DIR__ . '/stub-mandrill.php';
 require_once $autoload;
 

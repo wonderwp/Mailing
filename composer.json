@@ -16,7 +16,8 @@
     }
   ],
   "require": {
-    "php": "^8.3"
+    "php": "^8.3",
+    "wonderwp/functions": "dev-feature/php_8"
   },
   "require-dev": {
     "phpunit/phpunit": "^12.0",
