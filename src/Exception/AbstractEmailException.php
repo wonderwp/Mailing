@@ -17,7 +17,7 @@ abstract class AbstractEmailException extends Exception implements JsonSerializa
      * @param Throwable|null $previous
      * @param array $details
      */
-    public function __construct($message = "", $code = 0, Throwable $previous = null, array $details = [])
+    public function __construct($message = "", $code = 0, ?Throwable $previous = null, array $details = [])
     {
         parent::__construct($message, $code, $previous);
         $this->details = $details;
