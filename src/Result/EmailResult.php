@@ -37,8 +37,8 @@ class EmailResult extends Result
         string $msgKey = '',
         $response = null,
         array $data = [],
-        Throwable $error = null,
-        MailerInterface $mailerInstance = null
+        ?Throwable $error = null,
+        ?MailerInterface $mailerInstance = null
     )
     {
         parent::__construct($code, $data);
