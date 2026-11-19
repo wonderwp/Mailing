@@ -169,11 +169,15 @@ class WpMailer extends AbstractMailer
      */
     public function encodeUtf8($value)
     {
-        $value = trim($value);
-        if (preg_match('/(\s)/', $value)) {
-            return $this->encodeUtf8Words($value);
+        $value = trim(preg_replace('/\s+/u', ' ', (string) $value) ?? '');
+        if ($value === '') {
+            return '';
         }
 
+        // Encode the whole display-name as one encoded-word.
+        // Splitting on spaces and concatenating encoded-words without linear
+        // whitespace produced invalid RFC 2047 headers (e.g. "?==?UTF-8?B?"),
+        // which some SMTP providers accept then silently drop.
         return $this->encodeUtf8Word($value);
     }
 
@@ -198,13 +202,20 @@ class WpMailer extends AbstractMailer
      */
     public function encodeUtf8Words($value)
     {
-        $words   = explode(' ', $value);
+        $words = preg_split('/\s+/u', trim((string) $value), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        if ($words === []) {
+            return '';
+        }
+
         $encoded = [];
         foreach ($words as $word) {
             $encoded[] = $this->encodeUtf8Word($word);
         }
 
-        return join($this->encodeUtf8Word(' '), $encoded);
+        // RFC 2047: encoded-words must be separated by linear whitespace.
+        // Spaces themselves are kept as their own encoded-word so decoding
+        // preserves them.
+        return implode(' ' . $this->encodeUtf8Word(' ') . ' ', $encoded);
     }
 
     /**
